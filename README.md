@@ -7,7 +7,7 @@ This project aims to bridge the information gap for first responders during high
 ## 🛠️ Technical Stack
 - **Languages**: C# (to be developed in Unity)
 - **Frameworks/Libraries:** Unity Enginer and Meta OpenXR SDK
-- **Documentation:** [Project Main Document](./AugmentedRealityCrisisHelper_MainDoc.pdf)
+- **Documentation:** [Project Main Document](./AugmentedRealityCrisisHelper_MainDoc.pdf), [Project Gantt Chart](./ARCH_GanttChart.pdf)
 
 ## 🏗️ Core Engineering Challenges
 - **Heuristic UI/UX Design** — Optimizing the Heads-Up Display (HUD) to provide critical data without compromising the user's cognitive load.
