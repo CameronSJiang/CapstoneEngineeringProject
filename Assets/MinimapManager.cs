@@ -24,11 +24,11 @@ public class MinimapManager : MonoBehaviour
     void UpdateWithMockData()
     {
         // Fake test info from the server
-        List<EntityData> mockData = new List<EntityData><EntityData>
+        List<EntityData> mockData = new List<EntityData>
         {
-            new EntityData { type = "ducky", position = new Vector2(0.3f,0.7f) };
-            new EntityData { type = "person", position = new Vector2(0.5f,0.5f) };
-            new EntityData { type = "person", position = new Vector2(0.6f,0.4f) };
+            new EntityData { type = "ducky", position = new Vector2(0.3f,0.7f) },
+            new EntityData { type = "person", position = new Vector2(0.5f,0.5f) },
+            new EntityData { type = "person", position = new Vector2(0.6f,0.4f) }
         };
         UpdateMinimapIcons(mockData); //sends fake data to updater
     }
