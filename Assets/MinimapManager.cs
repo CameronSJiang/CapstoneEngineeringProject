@@ -2,77 +2,74 @@ using UnityEngine;
 using System.Collections.Generic;
 
 [System.Serializable]
-public class EntityData {
-    public string type; // to icon types like "ducky" or "person"
-    public Vector2 position;
+public class EntityData
+{
+    public string type;      // Like "threat", "victim", or "officer"
+    public Vector2 position; // Where on the map (0 to 1)
 }
 
 public class MinimapManager : MonoBehaviour
 {
-    [Header("UI Stuff")] //Title in Unity Inspector
-    public Transform minimapContainer; //almost like a folder-ish for the icons
-    public GameObject duckyIconPrefab; //yellow
-    public GameObject personIconPrefab; //blue
+    [Header("UI Stuff")]
+    public Transform minimapContainer;         // Drag your UI Panel here
+    public GameObject duckyIconPrefab;        // yellow dot prefab
+    public GameObject personIconPrefab;        // Blue dot prefab
 
-    private List<GameObject> activeIcons = new List<GameObject>(); //List to recall which dots are on the map
+    private List<GameObject> activeIcons = new List<GameObject>();
 
-    void Start() {
-        //Starts the fake data updater every second
-        InvokeRepeating(nameof(UpdateWithMockData), 0f, 1f); //calls the pretend updater right now (0f) and repeat every second (1f)
+    void Start()
+    {
+        // Start fake updates every second
+        InvokeRepeating(nameof(UpdateWithMockData), 0f, 1f);
     }
 
     void UpdateWithMockData()
     {
-        // Fake test info from the server
+        // Fake data to test — pretend server sent this
         List<EntityData> mockData = new List<EntityData>
         {
-            new EntityData { type = "ducky", position = new Vector2(0.3f,0.7f) },
-            new EntityData { type = "person", position = new Vector2(0.5f,0.5f) },
-            new EntityData { type = "person", position = new Vector2(0.6f,0.4f) }
+            new EntityData { type = "ducky", position = new Vector2(0.3f, 0.7f) },
+            new EntityData { type = "person", position = new Vector2(0.6f, 0.4f) },
+            new EntityData { type = "person", position = new Vector2(0.8f, 0.2f) }
         };
-        UpdateMinimapIcons(mockData); //sends fake data to updater
+
+        UpdateMinimapIcons(mockData);
     }
 
     public void UpdateMinimapIcons(List<EntityData> entities)
     {
-        //rid of the old dots to update map for new positions / new dots
-        foreach (var icon in activeIcons) Destroy(icon);
+        // Remove old icons
+        foreach (var icon in activeIcons)
+        {
+            Destroy(icon);
+        }
         activeIcons.Clear();
 
-        //create new dot for all assets in list
+        // Add new icons
         foreach (var entity in entities)
         {
             GameObject prefab = GetPrefabForType(entity.type);
-            if (prefab == null) continue; // skips funcion if no corresponding dot
+            if (prefab == null) continue;
 
             GameObject icon = Instantiate(prefab, minimapContainer);
             RectTransform rt = icon.GetComponent<RectTransform>();
 
-            //the following code puts the right dot in the right spot
             rt.anchoredPosition = new Vector2(
-                entitiy.position.x * minimapContainer.GetComponent<RectTransform>().rect.width,
-                entitiy.position.y * minimapContainer.GetComponent<RectTransform>().rect.height
+                entity.position.x * minimapContainer.GetComponent<RectTransform>().rect.width,
+                entity.position.y * minimapContainer.GetComponent<RectTransform>().rect.height
             );
 
-            activeIcons.Add(icon); //remember this new dot
-        };
+            activeIcons.Add(icon);
+        }
     }
 
     private GameObject GetPrefabForType(string type)
     {
-        // assigns dots correct category based on word
         switch (type.ToLower())
         {
-            case "ducky": return duckyIconPrefab;
-            case "person": return personIconPrefab;
-            default: return null; //If there is some other random bs that is making our code tweak
+            case "ducky":  return duckyIconPrefab;
+            case "person":  return personIconPrefab;
+            default:        return null;
         }
     }
-    //when server is ready add this to get real info
-    //public void UpdateFromServer(string jsonData)
-    //{
-    //    //Turn words from server into a list of things like above
-    //    //List<EntityData> realData = ... (parse jason)
-    //    //UpdateMinimapIcons(realData);
-    //}
 }
