@@ -19,8 +19,13 @@ public class MinimapManager : MonoBehaviour
 
     void Start()
     {
-        // Start fake updates every second
-        InvokeRepeating(nameof(UpdateWithMockData), 0f, 1f);
+        StartCoroutine(StartAfterFrame());
+    }
+
+    IEnumerator StartAfterFrame()
+    {
+        yield return null; //actually wait
+        InvokeRepeating(nameof(UpdateWithMockData), 0f, 1f); // Start fake updates every second
     }
 
     void UpdateWithMockData()
@@ -38,6 +43,11 @@ public class MinimapManager : MonoBehaviour
 
     public void UpdateMinimapIcons(List<EntityData> entities)
     {
+        if (minimapContainer == null)
+        {
+            Debug.LogWarning("MinimapContainer not assinged!");
+            return;
+        }
         // Remove old icons
         foreach (var icon in activeIcons)
         {
@@ -52,12 +62,15 @@ public class MinimapManager : MonoBehaviour
             if (prefab == null) continue;
 
             GameObject icon = Instantiate(prefab, minimapContainer);
+            Debug.Log("Spawned " + entity.type + " at " + entity.position);
             RectTransform rt = icon.GetComponent<RectTransform>();
 
-            rt.anchoredPosition = new Vector2(
-                entity.position.x * minimapContainer.GetComponent<RectTransform>().rect.width,
-                entity.position.y * minimapContainer.GetComponent<RectTransform>().rect.height
-            );
+            if (rt != & minimapContainer != null){
+                rt.anchoredPosition = new Vector2(
+                    entity.position.x * minimapContainer.GetComponent<RectTransform>().rect.width,
+                    entity.position.y * minimapContainer.GetComponent<RectTransform>().rect.height
+                );
+            }
 
             activeIcons.Add(icon);
         }
@@ -65,6 +78,8 @@ public class MinimapManager : MonoBehaviour
 
     private GameObject GetPrefabForType(string type)
     {
+        if (string.IsNullOrEmpty(type)) return null;
+
         switch (type.ToLower())
         {
             case "ducky":  return duckyIconPrefab;
