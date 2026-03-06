@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 
 [System.Serializable]
@@ -11,9 +12,9 @@ public class EntityData
 public class MinimapManager : MonoBehaviour
 {
     [Header("UI Stuff")]
-    public Transform minimapContainer;         // Drag your UI Panel here
-    public GameObject duckyIconPrefab;        // yellow dot prefab
-    public GameObject personIconPrefab;        // Blue dot prefab
+    public Transform MinimapContainer;         // Drag your UI Panel here
+    public GameObject DuckyIcon;        // yellow dot prefab
+    public GameObject PersonIcon;        // Blue dot prefab
 
     private List<GameObject> activeIcons = new List<GameObject>();
 
@@ -24,35 +25,33 @@ public class MinimapManager : MonoBehaviour
 
     IEnumerator StartAfterFrame()
     {
-        yield return null; //actually wait
-        InvokeRepeating(nameof(UpdateWithMockData), 0f, 1f); // Start fake updates every second
+        yield return null;                    // Wait one frame so Canvas is ready
+        InvokeRepeating(nameof(UpdateWithMockData), 0f, 1f);
     }
-
     void UpdateWithMockData()
     {
         // Fake data to test — pretend server sent this
         List<EntityData> mockData = new List<EntityData>
         {
-            new EntityData { type = "ducky", position = new Vector2(0.3f, 0.7f) },
-            new EntityData { type = "person", position = new Vector2(0.6f, 0.4f) },
-            new EntityData { type = "person", position = new Vector2(0.8f, 0.2f) }
+            new EntityData { type = "ducky", position = new Vector2(0.5f, 0.5f) },
+            new EntityData { type = "person", position = new Vector2(0.6f, 0.6f) },
+            new EntityData { type = "person", position = new Vector2(0.5f, 0.4f) }
         };
 
         UpdateMinimapIcons(mockData);
     }
 
-    public void UpdateMinimapIcons(List<EntityData> entities)
+   public void UpdateMinimapIcons(List<EntityData> entities)
     {
-        if (minimapContainer == null)
+        if (MinimapContainer == null)
         {
-            Debug.LogWarning("MinimapContainer not assinged!");
+            Debug.LogWarning("MinimapContainer is not assigned!");
             return;
         }
+
         // Remove old icons
         foreach (var icon in activeIcons)
-        {
             Destroy(icon);
-        }
         activeIcons.Clear();
 
         // Add new icons
@@ -61,14 +60,16 @@ public class MinimapManager : MonoBehaviour
             GameObject prefab = GetPrefabForType(entity.type);
             if (prefab == null) continue;
 
-            GameObject icon = Instantiate(prefab, minimapContainer);
+            GameObject icon = Instantiate(prefab, MinimapContainer);
             Debug.Log("Spawned " + entity.type + " at " + entity.position);
+
             RectTransform rt = icon.GetComponent<RectTransform>();
 
-            if (rt != & minimapContainer != null){
+            if (rt != null)
+            {
                 rt.anchoredPosition = new Vector2(
-                    entity.position.x * minimapContainer.GetComponent<RectTransform>().rect.width,
-                    entity.position.y * minimapContainer.GetComponent<RectTransform>().rect.height
+                    entity.position.x * MinimapContainer.GetComponent<RectTransform>().rect.width,
+                    entity.position.y * MinimapContainer.GetComponent<RectTransform>().rect.height
                 );
             }
 
@@ -82,8 +83,8 @@ public class MinimapManager : MonoBehaviour
 
         switch (type.ToLower())
         {
-            case "ducky":  return duckyIconPrefab;
-            case "person":  return personIconPrefab;
+            case "ducky":  return DuckyIcon;
+            case "person":  return PersonIcon;
             default:        return null;
         }
     }
