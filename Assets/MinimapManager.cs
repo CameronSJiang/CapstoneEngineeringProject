@@ -33,7 +33,7 @@ public class MinimapManager : MonoBehaviour
         // Fake data to test — pretend server sent this
         List<EntityData> mockData = new List<EntityData>
         {
-            new EntityData { type = "ducky", position = new Vector2(0.5f, 0.5f) },
+            new EntityData { type = "ducky", position = new Vector2(0.5f, 1) },
             new EntityData { type = "person", position = new Vector2(0.6f, 0.6f) },
             new EntityData { type = "person", position = new Vector2(0.5f, 0.4f) }
         };
@@ -64,6 +64,10 @@ public class MinimapManager : MonoBehaviour
             Debug.Log("Spawned " + entity.type + " at " + entity.position);
 
             RectTransform rt = icon.GetComponent<RectTransform>();
+
+            rt.anchorMin = new Vector2(0,0);
+            rt.anchorMax = new Vector2(0,0);
+            rt.pivot = new Vector2(0.5f, 0.5f);
 
             if (rt != null)
             {
