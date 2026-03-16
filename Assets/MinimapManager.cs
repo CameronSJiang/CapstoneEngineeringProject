@@ -1,6 +1,8 @@
 using UnityEngine;
+using UnityEngine.Networking;
 using System.Collections;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 
 [System.Serializable]
 public class EntityData
@@ -16,6 +18,9 @@ public class MinimapManager : MonoBehaviour
     public GameObject DuckyIcon;        // yellow dot prefab
     public GameObject PersonIcon;        // Blue dot prefab
 
+    /*[Header("Server Stuff")]
+    public string serverUrl = "https://..."; ONCE WE GET ACTUAL SERVER RUNNING CHANGE THIS
+    */
     private List<GameObject> activeIcons = new List<GameObject>();
 
     void Start()
@@ -25,8 +30,8 @@ public class MinimapManager : MonoBehaviour
 
     IEnumerator StartAfterFrame()
     {
-        yield return null;                    // Wait one frame so Canvas is ready
-        InvokeRepeating(nameof(UpdateWithMockData), 0f, 1f);
+        yield return null;    // Wait one frame so Canvas is ready
+        InvokeRepeating(nameof(PollServer), 0f, 0.7f);
     }
     void UpdateWithMockData()
     {
