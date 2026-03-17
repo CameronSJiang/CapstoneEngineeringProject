@@ -31,7 +31,8 @@ public class MinimapManager : MonoBehaviour
     IEnumerator StartAfterFrame()
     {
         yield return null;    // Wait one frame so Canvas is ready
-        InvokeRepeating(nameof(PollServer), 0f, 0.7f);
+        InvokeRepeating(nameof(UpdateWithMockData), 0f, 0.7f);
+       // InvokeRepeating(nameof(PollServer), 0f, 0.7f);
     }
     void UpdateWithMockData()
     {
