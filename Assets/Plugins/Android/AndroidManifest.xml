@@ -1,23 +1,42 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!--
+  AndroidManifest.xml - Meta Quest runs Horizon OS, which is built on Android,
+  so a Quest app is packaged as an Android APK. This file tells the OS what the
+  app is and which permissions/hardware it needs. The Meta XR SDK's
+  "Project Setup Tool" generated most of this.
+-->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" android:installLocation="auto" xmlns:horizonos="http://schemas.horizonos/sdk">
   <application android:label="@string/app_name" android:icon="@mipmap/app_icon" android:allowBackup="false">
     <activity android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" android:configChanges="locale|fontScale|keyboard|keyboardHidden|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode" android:launchMode="singleTask" android:name="com.unity3d.player.UnityPlayerGameActivity" android:excludeFromRecents="true" android:exported="true">
+      <!-- MAIN + LAUNCHER = shows in the app library. com.oculus.intent.category.VR = launch as an immersive app. -->
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
         <category android:name="com.oculus.intent.category.VR" />
       </intent-filter>
+      <!-- focusaware: the app keeps running (paused input) when the system menu opens, instead of being killed. -->
       <meta-data android:name="com.oculus.vr.focusaware" android:value="true" />
     </activity>
     <meta-data android:name="unityplayer.SkipPermissionsDialog" android:value="false" />
+    <!-- Loading splash shows passthrough (the real world) instead of black - makes sense for a mixed-reality safety tool. -->
     <meta-data android:name="com.oculus.ossplash.background" android:value="passthrough-contextual" />
     <meta-data android:name="com.oculus.telemetry.project_guid" android:value="5aca2f3e-fe8f-41f2-82ba-a14fdb868b71" />
+    <!-- Passthrough is color on Quest 3/3S/Pro but grayscale on Quest 2 - relevant for a HUD that color-codes threats. -->
     <meta-data android:name="com.oculus.supportedDevices" android:value="quest|quest2|questpro|quest3|quest3s" tools:replace="android:value" />
   </application>
   <uses-feature android:name="android.hardware.vr.headtracking" android:version="1" android:required="true" />
   <horizonos:uses-horizonos-sdk horizonos:minSdkVersion="60" horizonos:targetSdkVersion="85" />
+  <!-- Spatial anchors: pin virtual content to a real-world spot. The path to aligning the headset with the building floor plan. -->
   <uses-permission android:name="com.oculus.permission.USE_ANCHOR_API" />
+  <!-- PASSTHROUGH: shows the real world via the headset cameras so virtual UI draws on top of reality.
+       required="false" lets it install even where passthrough is unavailable. Passthrough also needs
+       isInsightPassthroughEnabled on OVRManager (it is on, in ARCH.unity) and a transparent camera background. -->
   <uses-feature android:name="com.oculus.feature.PASSTHROUGH" android:required="false" />
+  <!-- USE_SCENE: read the room model (walls, floor, furniture) the user scanned. Not used yet. -->
   <uses-permission android:name="com.oculus.permission.USE_SCENE" />
+  <!-- HEADSET_CAMERA: raw access to the passthrough camera feed (Passthrough Camera API). Could let the headset
+       run its own detection later. Not used by the code yet.
+       NOTE: no explicit INTERNET permission here. Unity adds it automatically when scripts use networking
+       (or when Player Settings > Internet Access = Require). Worth confirming before the WebSocket connection. -->
   <uses-permission android:name="horizonos.permission.HEADSET_CAMERA" />
 </manifest>
