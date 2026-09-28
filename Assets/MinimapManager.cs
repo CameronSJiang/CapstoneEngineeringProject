@@ -1,7 +1,7 @@
 // =============================================================================
 // MinimapManager.cs — ARCH (Augmented Reality Crisis Helper)
 // =============================================================================
-// WHAT THIS FILE DOES (the 30-second version):
+// WHAT THIS FILE DOES:
 //   This is the "client" end of the ARCH pipeline. It takes a list of entities
 //   (threats/"ducky", people, officers...) with positions, and draws them as
 //   icons on a 2D minimap in the Meta Quest HUD.
