@@ -16,12 +16,6 @@
 //   3. LOCATE:  convert pixel position -> position on the building floor plan
 //   4. SEND:    serialize to JSON, push to the headset
 //   5. DISPLAY: this script parses it and places icons (normalized 0..1 coords)
-//
-// CURRENT STATUS: steps 1-4 are not wired up yet. The script runs on MOCK data
-// (UpdateWithMockData) so the UI could be built before the hardware arrived.
-// That's a legit engineering practice: "stub the data source, build against
-// the contract (the data shape), swap in the real source later."
-// =============================================================================
 
 using UnityEngine;
 using UnityEngine.Networking;       // UnityWebRequest — HTTP client. Only needed for the (commented-out) PollServer idea.
@@ -42,18 +36,7 @@ using Newtonsoft.Json.Linq;         // JSON parsing. Not listed directly in Pack
 //   (0,0) = bottom-left of the map, (1,1) = top-right. The server doesn't need
 //   to know how big the minimap is in pixels, and the UI can be resized without
 //   touching the server. This decouples the sensor side from the display side.
-//
-// WHAT'S MISSING FOR REAL-WORLD USE (good things to bring up):
-//   - id:         a stable ID per tracked object. Without it, every update is a
-//                 brand-new set of icons, so you can't smooth movement or tell
-//                 "same person moved" from "new person appeared".
-//   - timestamp:  when the detection happened. In a crisis, a STALE threat
-//                 position shown as current is dangerous. With a timestamp the
-//                 HUD could fade/flag old data.
-//   - confidence: model certainty (0..1). Lets you avoid showing low-confidence
-//                 "threats" and reduces false alarms.
-//   - source/floor: which camera / which floor, once there are multiple.
-// -----------------------------------------------------------------------------
+
 [System.Serializable]
 public class EntityData
 {
@@ -69,30 +52,12 @@ public class EntityData
 public class MinimapManager : MonoBehaviour
 {
     [Header("UI Stuff")]
-    public Transform MinimapContainer;         // Drag your UI Panel here
+    public Transform MinimapContainer;         // Drag my UI Panel here
                                                // The 400x400 RectTransform inside MinimapCanvas. Icons are spawned as its children.
     public GameObject DuckyIcon;        // yellow dot prefab
     public GameObject PersonIcon;        // Blue dot prefab
     // Prefab = a reusable template object (Assets/Prefabs/DuckyIcon.prefab, PersonIcon.prefab).
     // Instantiate() stamps out a copy at runtime.
-
-    /*[Header("Server Stuff")]
-    public string serverUrl = "https://..."; ONCE WE GET ACTUAL SERVER RUNNING CHANGE THIS
-    */
-    // NETWORKING — POLLING vs. WEBSOCKETS (likely interview topic):
-    //   * HTTP polling (what PollServer + UnityWebRequest would do): the headset
-    //     asks "anything new?" every 0.7s. Worst-case latency ≈ poll interval +
-    //     round trip, and you pay request overhead even when nothing changed.
-    //   * WebSockets (what the Mar 16 commit says you're moving to): one
-    //     persistent connection; the Pi PUSHES updates the moment it detects
-    //     something. Lower latency, less overhead — better fit for design
-    //     requirement #2 ("real-time: data received as it is generated").
-    //   * Security: this is sensitive data (locations of victims/threats). A
-    //     real deployment needs wss:// (TLS) + authentication, not plain ws://.
-    //   * Threading: WebSocket libraries usually receive on a background thread,
-    //     but Unity APIs (Instantiate, RectTransform) are main-thread only. The
-    //     standard pattern is: background thread puts parsed messages into a
-    //     thread-safe queue, and Update() drains the queue on the main thread.
 
     private List<GameObject> activeIcons = new List<GameObject>();
     // Tracks every icon currently on screen so they can be removed next update.
@@ -218,24 +183,4 @@ public class MinimapManager : MonoBehaviour
             default:        return null;
         }
     }
-
-    // -------------------------------------------------------------------------
-    // WHAT'S NOT HERE YET (roadmap, useful for "what would you do next?"):
-    //   1. The user's own position/heading. Right now the map is static — it
-    //      doesn't show where the wearer is. The Quest already tracks head pose
-    //      (CenterEyeAnchor); the hard part is ALIGNING headset tracking space
-    //      with the building floor plan (e.g. a spatial anchor at a known spot,
-    //      or a one-time manual calibration). The manifest already requests the
-    //      anchor permission. This is the gap you called out in Volt AI.
-    //   2. Floor plan overlay behind the icons (next item from the commit log).
-    //   3. Camera-to-map mapping on the Pi: a fixed camera's pixel coordinates can
-    //      be mapped onto a flat floor plan with a HOMOGRAPHY (a 3x3 perspective
-    //      transform computed from 4+ known point pairs, e.g. OpenCV
-    //      findHomography). Use the bottom-center of a person's bounding box
-    //      (their feet) as the point that touches the floor.
-    //   4. Multiple cameras -> the same person seen twice. Needs de-duplication /
-    //      sensor fusion on the server side before sending to the headset.
-    //   5. Connection-loss handling: if the stream drops, the HUD must SAY so
-    //      rather than keep showing frozen icons as if they were live.
-    // -------------------------------------------------------------------------
 }
