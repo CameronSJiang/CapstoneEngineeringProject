@@ -1,7 +1,0 @@
-node_modules/
-.output/
-.wxt/
-dist/
-*.log
-.env*
-web-ext.config.ts

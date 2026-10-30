@@ -1,6 +1,0 @@
-.output/
-.wxt/
-node_modules/
-pnpm-lock.yaml
-SPEC.md
-CLAUDE.md
